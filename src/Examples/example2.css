@@ -1,0 +1,10 @@
+.react-datepicker__day.react-datepicker__day--outside-month {
+  color: #bbb;
+  background: transparent;
+}
+
+.RangePicker {
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  padding: 5px 10px;
+}
