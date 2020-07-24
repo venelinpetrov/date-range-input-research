@@ -1,17 +1,58 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  padding: 10px;
+}
 .react-datepicker__day.react-datepicker__day--outside-month {
-  color: #bbb;
+  color: #000;
   background: transparent;
 }
 
 .RangePicker {
-  background-color: #ffffff;
-  border: 1px solid #dddddd;
-  padding: 5px 10px;
+  position: relative;
+  display: inline-block;
 }
 
-.DateRangePickerPopup {
+.RangePickerInput {
+  display: flex;
+  width: 294px;
+  font-size: 14px;
+  height: 40px;
+  padding: 0 40px 0 10px;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #d2d2d2;
+  color: #241e1e;
+}
+
+.RangePickerInput:hover {
+  border-color: #108ee9;
+}
+
+.RangePickerClearButton {
+  position: absolute;
+  top: calc(50% -  10px);
+  right: 2px;
 }
 
 .react-datepicker__tab-loop {
   display: inline-block;
+}
+
+.react-datepicker {
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+.react-datepicker__header {
+  background: white;
+}
+
+.react-datepicker__triangle {
+  display: none;
+}
+
+.DimText {
+  opacity: .5;
 }

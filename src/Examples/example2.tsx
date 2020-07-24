@@ -1,4 +1,5 @@
-import React, { useState, forwardRef, useCallback } from 'react';
+import React, { useState, forwardRef, useCallback, useEffect, useRef } from 'react';
+import moment from 'moment';
 import DatePicker from 'react-datepicker';
 
 import 'react-datepicker/dist/react-datepicker.css';
@@ -27,6 +28,8 @@ const SingleInputRangePicker = () => {
     }
   };
 
+  const formatDate = (d: Date) => moment(d).format('ddd, MMM D, YYYY');
+
   const handleClear = useCallback(() => {
     setStartDate(null);
     setEndDate(null);
@@ -39,27 +42,55 @@ const SingleInputRangePicker = () => {
   }, []);
 
   const handleOpen = useCallback(() => setOpen(true), []);
+  const ref = useRef<HTMLDivElement | null>(null);
 
-  const ExampleCustomInput = forwardRef<HTMLButtonElement, Props & React.DOMAttributes<HTMLButtonElement>>((props, ref) => {
-    if (props!.range[0] !== null && props!.range[1] !== null) {
-      return (
-        <button className="RangePicker" onClick={handleOpen} ref={ref}>
-          {props.range[0].toLocaleDateString() + ' - ' + props.range[1].toLocaleDateString()}
-        </button>
-      );
-    }
-
+  useEffect(() => {
+    const handler = (e: any) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('click', handler, false);
+    return () => document.removeEventListener('click', handler);
+  }, [ref]);
+  const ExampleCustomInput = forwardRef<HTMLDivElement, Props & React.DOMAttributes<HTMLDivElement>>((props, ref) => {
     return (
-      <button className="RangePicker" onClick={handleOpen} ref={ref}>
-        Start date - End date
-      </button>
+      <div className="RangePicker" ref={ref}>
+        <button className="RangePickerInput"  onClick={handleOpen}>
+          {props!.range[0] !== null && props!.range[1] !== null ?
+            (
+              <>
+                <span>{formatDate(props.range[0])}</span>
+                <span>-</span>
+                <span>{formatDate(props.range[1])}</span>
+              </>
+            ) :
+            (
+              <>
+                <span>Start date</span>
+                <span>-</span>
+                <span>End date</span>
+              </>
+            )
+          }
+        </button>
+        <button
+          className="RangePickerClearButton"
+          aria-label="clear picker"
+          onClick={handleClear}>
+          X
+        </button>
+      </div>
     );
   });
 
+
+
   return (
-    <div>
+    <div >
       <DatePicker
-        wrapperClassName="DateRangePickerPopup"
+
+        wrapperClassName="RangePickerPopup"
         selected={startDate}
         onChange={onChange}
         onKeyDown={handleKeyDown}
@@ -68,9 +99,8 @@ const SingleInputRangePicker = () => {
         endDate={endDate}
         monthsShown={2}
         selectsRange
-        customInput={<ExampleCustomInput range={[startDate, endDate]} />}
+        customInput={<ExampleCustomInput ref={ref} range={[startDate, endDate]} />}
       />
-      <button aria-label="clear picker" onClick={handleClear}>X</button>
     </div>
   )
 };
@@ -95,7 +125,6 @@ const TwoInputsRangePicker = () => {
         endDate={endDate}
         minDate={startDate}
       />
-      <input type="text" />
     </>
   );
 };
