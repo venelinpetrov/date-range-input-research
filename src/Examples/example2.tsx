@@ -1,15 +1,20 @@
-import React, { useState, forwardRef, RefObject, useEffect } from 'react';
+import React, { useState, forwardRef, useCallback } from 'react';
 import DatePicker from 'react-datepicker';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import './example2.css';
 
+const ESK_KEY = 27;
+
+type DateOrNull = Date | null;
+
 interface Props {
-  range: [Date, Date | null]
+  range: [DateOrNull, DateOrNull]
 }
+
 const SingleInputRangePicker = () => {
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<DateOrNull>(null);
+  const [endDate, setEndDate] = useState<DateOrNull>(null);
   const [open, setOpen] = useState(false);
 
   // any, because the DatePicker is not typed correctly
@@ -22,26 +27,51 @@ const SingleInputRangePicker = () => {
     }
   };
 
+  const handleClear = useCallback(() => {
+    setStartDate(null);
+    setEndDate(null);
+  }, []);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.keyCode === ESK_KEY) {
+      setOpen(false);
+    }
+  }, []);
+
+  const handleOpen = useCallback(() => setOpen(true), []);
+
   const ExampleCustomInput = forwardRef<HTMLButtonElement, Props & React.DOMAttributes<HTMLButtonElement>>((props, ref) => {
+    if (props!.range[0] !== null && props!.range[1] !== null) {
+      return (
+        <button className="RangePicker" onClick={handleOpen} ref={ref}>
+          {props.range[0].toLocaleDateString() + ' - ' + props.range[1].toLocaleDateString()}
+        </button>
+      );
+    }
+
     return (
-      <button className="RangePicker" onClick={() => setOpen(true)} ref={ref}>
-        {props.range[0].toLocaleDateString() + ' - ' + props.range[1]?.toLocaleDateString()}
+      <button className="RangePicker" onClick={handleOpen} ref={ref}>
+        Start date - End date
       </button>
-    )
+    );
   });
 
   return (
-    <DatePicker
-      selected={startDate}
-      onChange={onChange}
-      open={open}
-      startDate={startDate}
-      endDate={endDate}
-      monthsShown={2}
-      selectsRange
-      onMonthChange={() => console.log(333)}
-      customInput={<ExampleCustomInput range={[startDate, endDate]} />}
-    />
+    <div>
+      <DatePicker
+        wrapperClassName="DateRangePickerPopup"
+        selected={startDate}
+        onChange={onChange}
+        onKeyDown={handleKeyDown}
+        open={open}
+        startDate={startDate}
+        endDate={endDate}
+        monthsShown={2}
+        selectsRange
+        customInput={<ExampleCustomInput range={[startDate, endDate]} />}
+      />
+      <button aria-label="clear picker" onClick={handleClear}>X</button>
+    </div>
   )
 };
 
@@ -65,10 +95,11 @@ const TwoInputsRangePicker = () => {
         endDate={endDate}
         minDate={startDate}
       />
-      <input type="text" onBlur={() => console.log('blur')}/>
+      <input type="text" />
     </>
   );
 };
+
 export const Example2 = () => {
   return (
     <div>
@@ -79,5 +110,3 @@ export const Example2 = () => {
     </div>
   );
 };
-
-

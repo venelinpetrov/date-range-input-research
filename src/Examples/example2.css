@@ -8,3 +8,10 @@
   border: 1px solid #dddddd;
   padding: 5px 10px;
 }
+
+.DateRangePickerPopup {
+}
+
+.react-datepicker__tab-loop {
+  display: inline-block;
+}
