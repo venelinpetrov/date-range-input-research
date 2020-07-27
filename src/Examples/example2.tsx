@@ -5,8 +5,6 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './example2.css';
 
-const ESK_KEY = 27;
-
 type DateOrNull = Date | null;
 
 interface Props {
@@ -16,16 +14,13 @@ interface Props {
 const SingleInputRangePicker = () => {
   const [startDate, setStartDate] = useState<DateOrNull>(null);
   const [endDate, setEndDate] = useState<DateOrNull>(null);
-  const [open, setOpen] = useState(false);
+  const [shouldClose, setShouldClose] = useState(false);
 
   // any, because the DatePicker is not typed correctly
   const onChange = (dates: any) => {
     const [start, end] = dates;
     setStartDate(start);
     setEndDate(end);
-    if (end !== null) {
-      setOpen(false);
-    }
   };
 
   const formatDate = (d: Date) => moment(d).format('ddd, MMM D, YYYY');
@@ -35,28 +30,13 @@ const SingleInputRangePicker = () => {
     setEndDate(null);
   }, []);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.keyCode === ESK_KEY) {
-      setOpen(false);
-    }
-  }, []);
+  const handleCalendarClose = useCallback(() => setShouldClose(false), []);
+  const handleDateSelect = useCallback(() => setShouldClose(true), []);
 
-  const handleOpen = useCallback(() => setOpen(true), []);
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handler = (e: any) => {
-      if (ref.current && !ref.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('click', handler, false);
-    return () => document.removeEventListener('click', handler);
-  }, [ref]);
-  const ExampleCustomInput = forwardRef<HTMLDivElement, Props & React.DOMAttributes<HTMLDivElement>>((props, ref) => {
+  const CustomInput = forwardRef<HTMLDivElement, Props & React.DOMAttributes<HTMLButtonElement>>((props, ref) => {
     return (
-      <div className="RangePicker" ref={ref}>
-        <button className="RangePickerInput"  onClick={handleOpen}>
+      <div className="RangePicker" >
+        <button className="RangePickerInput" onClick={props.onClick}>
           {props!.range[0] !== null && props!.range[1] !== null ?
             (
               <>
@@ -84,22 +64,20 @@ const SingleInputRangePicker = () => {
     );
   });
 
-
-
   return (
-    <div >
+    <div  >
       <DatePicker
-
+        shouldCloseOnSelect={shouldClose}
         wrapperClassName="RangePickerPopup"
         selected={startDate}
         onChange={onChange}
-        onKeyDown={handleKeyDown}
-        open={open}
+        onSelect={handleDateSelect}
+        onCalendarClose={handleCalendarClose}
         startDate={startDate}
         endDate={endDate}
         monthsShown={2}
         selectsRange
-        customInput={<ExampleCustomInput ref={ref} range={[startDate, endDate]} />}
+        customInput={<CustomInput range={[startDate, endDate]} />}
       />
     </div>
   )
